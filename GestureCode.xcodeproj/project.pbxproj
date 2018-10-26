@@ -14,6 +14,7 @@
 		AD0D575621815A4700545048 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD0D575421815A4700545048 /* LaunchScreen.storyboard */; };
 		AD0D575921815A4700545048 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AD0D575821815A4700545048 /* main.m */; };
 		AD0D576121815ADA00545048 /* SLGestureCodeView.m in Sources */ = {isa = PBXBuildFile; fileRef = AD0D576021815ADA00545048 /* SLGestureCodeView.m */; };
+		AD3078F12182FBDB006E0EEE /* SLGestureCodeItem.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3078F02182FBDB006E0EEE /* SLGestureCodeItem.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		AD0D575821815A4700545048 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		AD0D575F21815ADA00545048 /* SLGestureCodeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLGestureCodeView.h; sourceTree = "<group>"; };
 		AD0D576021815ADA00545048 /* SLGestureCodeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLGestureCodeView.m; sourceTree = "<group>"; };
+		AD3078EF2182FBDB006E0EEE /* SLGestureCodeItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLGestureCodeItem.h; sourceTree = "<group>"; };
+		AD3078F02182FBDB006E0EEE /* SLGestureCodeItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLGestureCodeItem.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +64,7 @@
 		AD0D574821815A4600545048 /* GestureCode */ = {
 			isa = PBXGroup;
 			children = (
-				AD0D575F21815ADA00545048 /* SLGestureCodeView.h */,
-				AD0D576021815ADA00545048 /* SLGestureCodeView.m */,
+				AD3078F22182FBE7006E0EEE /* GestureCode */,
 				AD0D574921815A4600545048 /* AppDelegate.h */,
 				AD0D574A21815A4600545048 /* AppDelegate.m */,
 				AD0D574C21815A4600545048 /* ViewController.h */,
@@ -72,6 +74,17 @@
 				AD0D575421815A4700545048 /* LaunchScreen.storyboard */,
 				AD0D575721815A4700545048 /* Info.plist */,
 				AD0D575821815A4700545048 /* main.m */,
+			);
+			path = GestureCode;
+			sourceTree = "<group>";
+		};
+		AD3078F22182FBE7006E0EEE /* GestureCode */ = {
+			isa = PBXGroup;
+			children = (
+				AD3078EF2182FBDB006E0EEE /* SLGestureCodeItem.h */,
+				AD3078F02182FBDB006E0EEE /* SLGestureCodeItem.m */,
+				AD0D575F21815ADA00545048 /* SLGestureCodeView.h */,
+				AD0D576021815ADA00545048 /* SLGestureCodeView.m */,
 			);
 			path = GestureCode;
 			sourceTree = "<group>";
@@ -146,6 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD3078F12182FBDB006E0EEE /* SLGestureCodeItem.m in Sources */,
 				AD0D574E21815A4600545048 /* ViewController.m in Sources */,
 				AD0D575921815A4700545048 /* main.m in Sources */,
 				AD0D576121815ADA00545048 /* SLGestureCodeView.m in Sources */,

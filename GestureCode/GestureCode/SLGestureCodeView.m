@@ -7,6 +7,7 @@
 //
 
 #import "SLGestureCodeView.h"
+#import "SLGestureCodeItem.h"
 
 static CGFloat kSLItemWidth = 65.f;
 static NSInteger kSLItemTag = 10000;
@@ -33,7 +34,7 @@ static NSInteger kSLItemTag = 10000;
         _itemPadding = (CGRectGetWidth(frame) - 3 * kSLItemWidth) / 4.f;
         _itemMargin = 40.f;
         
-        _selectedColor = [UIColor colorWithRed:0.13 green:0.7 blue:0.96 alpha:1];
+        _selectedColor = [UIColor colorWithRed:0.06 green:0.51 blue:0.90 alpha:1];
         
         [self _initializePoints];
         [self _configGuestures];
@@ -42,10 +43,6 @@ static NSInteger kSLItemTag = 10000;
 }
 
 - (void)drawRect:(CGRect)rect {
-    if (self.points.count == 0) return;
-    
-     [[UIColor whiteColor] setFill];
-    
     UIBezierPath *path = [UIBezierPath new];
     
     for (NSInteger index = 0; index < self.points.count; index++) {
@@ -71,7 +68,7 @@ static NSInteger kSLItemTag = 10000;
 #pragma mark - Private
 - (void)_initializePoints {
     for (NSInteger index = 0; index < 9; index++) {
-        UIButton *point = [self _initializePoint:index];
+        SLGestureCodeItem *point = [self _initializePoint:index];
         CGFloat originX = (index % 3) * kSLItemWidth + (index % 3 + 1) * self.itemPadding;
         CGFloat originY = (index / 3) * kSLItemWidth + (index / 3 + 1) * self.itemMargin;
         point.center = CGPointMake(originX + kSLItemWidth/2.f, originY + kSLItemWidth/2.f);
@@ -79,12 +76,9 @@ static NSInteger kSLItemTag = 10000;
     }
 }
 
-- (UIButton *)_initializePoint:(NSInteger)index {
-    UIButton *item = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, kSLItemWidth, kSLItemWidth)];
+- (SLGestureCodeItem *)_initializePoint:(NSInteger)index {
+    SLGestureCodeItem *item = [[SLGestureCodeItem alloc] initWithFrame:CGRectMake(0, 0, kSLItemWidth, kSLItemWidth)];
     item.tag = kSLItemTag + index;
-    item.userInteractionEnabled = false;
-    [item setImage:[UIImage imageNamed:@"gusture_point_normal"] forState:UIControlStateNormal];
-    [item setImage:[UIImage imageNamed:@"gusture_point_selected"] forState:UIControlStateSelected];
     return item;
 }
 
@@ -94,18 +88,39 @@ static NSInteger kSLItemTag = 10000;
 }
 
 - (void)checkPoint:(CGPoint)point redraw:(BOOL)redraw {
-    for (UIButton *button in self.subviews) {
-        if (!button.selected && CGRectContainsPoint(button.frame, point)) {
-            button.selected = true;
-            [self.points addObject:button];
+    for (NSInteger index = 0; index < self.subviews.count; index++) {
+        SLGestureCodeItem *item = self.subviews[index];
+        if (!item.selected && CGRectContainsPoint(item.frame, point)) {
+            item.selected = true;
+            [self.points addObject:item];
+            [self configTriangle:item];
             break;
         }
     }
     [self setNeedsDisplay];
 }
 
+- (void)configTriangle:(SLGestureCodeItem *)destination  {
+    if (self.points.count <= 1) return;
+    
+    SLGestureCodeItem *item = self.points[self.points.count - 2];
+    item.destination = destination.center;
+}
+
 - (void)clearPoints {
     self.currentPoint = CGPointZero;
+    
+    [self.points removeAllObjects];
+}
+
+- (void)configCode {
+    NSMutableString *code = [NSMutableString new];
+    for (SLGestureCodeItem *point in self.points) {
+        point.selected = false;
+        point.destination = CGPointZero;
+        [code appendFormat:@"%@", @(point.tag - kSLItemTag + 1).stringValue];
+    }
+    NSLog(@"%@",code);
 }
 
 #pragma mark - Action
@@ -123,6 +138,7 @@ static NSInteger kSLItemTag = 10000;
             break;
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled: {
+            [self configCode];
             [self clearPoints];
             [self setNeedsDisplay];
         }
