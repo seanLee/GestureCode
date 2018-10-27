@@ -21,6 +21,9 @@
     
     //Do any additional setup after loading the view, typically from a nib.
     SLGestureCodeView *gestureCodeView = [[SLGestureCodeView alloc] initWithFrame:self.view.bounds];
+    gestureCodeView.generatedBlock = ^(NSString *code) {
+        NSLog(@"密码 : %@",code);
+    };
     [self.view addSubview:gestureCodeView];
 }
 

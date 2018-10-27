@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SLGestureCodeView : UIView
-
+@property (copy, nonatomic) void (^generatedBlock)(NSString *);
+@property (copy, nonatomic) void (^errorBlock)(void);
 @end
 
 NS_ASSUME_NONNULL_END

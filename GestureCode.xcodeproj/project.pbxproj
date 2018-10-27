@@ -32,6 +32,7 @@
 		AD0D576021815ADA00545048 /* SLGestureCodeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLGestureCodeView.m; sourceTree = "<group>"; };
 		AD3078EF2182FBDB006E0EEE /* SLGestureCodeItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLGestureCodeItem.h; sourceTree = "<group>"; };
 		AD3078F02182FBDB006E0EEE /* SLGestureCodeItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLGestureCodeItem.m; sourceTree = "<group>"; };
+		ADA2F51821845A5400A7A458 /* SLGestureCodeHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLGestureCodeHelper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +82,7 @@
 		AD3078F22182FBE7006E0EEE /* GestureCode */ = {
 			isa = PBXGroup;
 			children = (
+				ADA2F51821845A5400A7A458 /* SLGestureCodeHelper.h */,
 				AD3078EF2182FBDB006E0EEE /* SLGestureCodeItem.h */,
 				AD3078F02182FBDB006E0EEE /* SLGestureCodeItem.m */,
 				AD0D575F21815ADA00545048 /* SLGestureCodeView.h */,

@@ -8,22 +8,25 @@
 
 #import "SLGestureCodeView.h"
 #import "SLGestureCodeItem.h"
+#import "SLGestureCodeHelper.h"
 
 static CGFloat kSLItemWidth = 65.f;
 static NSInteger kSLItemTag = 10000;
 
-@interface SLGestureCodeView ()
-@property (assign, nonatomic) CGFloat itemPadding;
-@property (assign, nonatomic) CGFloat itemMargin;
+static const CGFloat kErrorDuration = 1.0f;
 
+@interface SLGestureCodeView ()
 @property (strong, nonatomic) NSMutableArray *points;
 
 @property (assign, nonatomic) CGPoint currentPoint;
 
 @property (strong, nonatomic) UIColor *selectedColor;
+
+@property (strong, nonatomic) NSString *generatedCode;
 @end
 
 @implementation SLGestureCodeView
+static CGFloat kItemPadding;
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -31,10 +34,9 @@ static NSInteger kSLItemTag = 10000;
         self.backgroundColor = [UIColor whiteColor];
         
         _points = [NSMutableArray new];
-        _itemPadding = (CGRectGetWidth(frame) - 3 * kSLItemWidth) / 4.f;
-        _itemMargin = 40.f;
+        kItemPadding = (CGRectGetWidth(frame) - 3 * kSLItemWidth) / 4.f;
         
-        _selectedColor = [UIColor colorWithRed:0.06 green:0.51 blue:0.90 alpha:1];
+        _selectedColor = SLSelectedColor;
         
         [self _initializePoints];
         [self _configGuestures];
@@ -69,8 +71,8 @@ static NSInteger kSLItemTag = 10000;
 - (void)_initializePoints {
     for (NSInteger index = 0; index < 9; index++) {
         SLGestureCodeItem *point = [self _initializePoint:index];
-        CGFloat originX = (index % 3) * kSLItemWidth + (index % 3 + 1) * self.itemPadding;
-        CGFloat originY = (index / 3) * kSLItemWidth + (index / 3 + 1) * self.itemMargin;
+        CGFloat originX = (index % 3) * kSLItemWidth + (index % 3 + 1) * kItemPadding;
+        CGFloat originY = (index / 3) * kSLItemWidth + (index / 3 + 1) * kItemPadding;
         point.center = CGPointMake(originX + kSLItemWidth/2.f, originY + kSLItemWidth/2.f);
         [self addSubview:point];
     }
@@ -90,8 +92,8 @@ static NSInteger kSLItemTag = 10000;
 - (void)checkPoint:(CGPoint)point redraw:(BOOL)redraw {
     for (NSInteger index = 0; index < self.subviews.count; index++) {
         SLGestureCodeItem *item = self.subviews[index];
-        if (!item.selected && CGRectContainsPoint(item.frame, point)) {
-            item.selected = true;
+        if (item.state == SLGestureCOdeItemStateNormal && CGRectContainsPoint(item.frame, point)) {
+            item.state = SLGestureCOdeItemStateSelected;
             [self.points addObject:item];
             [self configTriangle:item];
             break;
@@ -108,19 +110,42 @@ static NSInteger kSLItemTag = 10000;
 }
 
 - (void)clearPoints {
+    for (SLGestureCodeItem *point in self.points) {
+        point.state = SLGestureCOdeItemStateNormal;
+        point.destination = CGPointZero;
+    }
+    
     self.currentPoint = CGPointZero;
     
     [self.points removeAllObjects];
 }
 
-- (void)configCode {
+- (BOOL)verifyCode {
     NSMutableString *code = [NSMutableString new];
     for (SLGestureCodeItem *point in self.points) {
-        point.selected = false;
-        point.destination = CGPointZero;
         [code appendFormat:@"%@", @(point.tag - kSLItemTag + 1).stringValue];
     }
-    NSLog(@"%@",code);
+    
+    if (self.generatedCode.length == 0) {
+        self.generatedCode = code;
+        return true;
+    }
+    
+    if ([self.generatedCode isEqualToString:code]) {
+        //两次密码输入相等,这里可以回掉出去
+        if (self.generatedBlock) self.generatedBlock(self.generatedCode);
+        self.generatedCode = nil;
+        return true;
+    }
+    
+    return false;
+}
+
+- (void)showError {
+    for (SLGestureCodeItem *point in self.points) {
+        point.state = SLGestureCOdeItemStateError;
+    }
+    if (self.errorBlock) self.errorBlock();
 }
 
 #pragma mark - Action
@@ -138,9 +163,24 @@ static NSInteger kSLItemTag = 10000;
             break;
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled: {
-            [self configCode];
-            [self clearPoints];
-            [self setNeedsDisplay];
+            if ([self verifyCode]) {
+                [self clearPoints];
+                
+                [self setNeedsDisplay];
+            } else {
+                self.userInteractionEnabled = false;
+                self.selectedColor = SLErrorColor;
+                [self showError];
+                
+                [self setNeedsDisplay];
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kErrorDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    self.userInteractionEnabled = true;
+                    self.selectedColor = SLSelectedColor;
+                    [self clearPoints];
+                    [self setNeedsDisplay];
+                });
+            }
         }
             break;
         default:

@@ -7,14 +7,13 @@
 //
 
 #import "SLGestureCodeItem.h"
+#import "SLGestureCodeHelper.h"
 
 static CGFloat kInnerItemWidth = 20.f;
+static CGFloat kTrianglePadding = 8.f;
+static CGFloat kTriangleWidth = 10.f;
 
 @interface SLGestureCodeItem ()
-@property (strong, nonatomic) CALayer *outerLayer;
-@property (strong, nonatomic) CALayer *innerLayer;
-@property (strong, nonatomic) CALayer *triangleLayer;
-
 @property (strong, nonatomic) UIColor *selectedColor;
 @end
 
@@ -25,47 +24,51 @@ static CGFloat kInnerItemWidth = 20.f;
     if (self) {
         self.backgroundColor = [UIColor whiteColor];
         
-        self.selectedColor = [UIColor colorWithRed:0.06 green:0.51 blue:0.90 alpha:1];
+        self.selectedColor = SLSelectedColor;
     }
     return self;
 }
 
 - (void)drawRect:(CGRect)rect {
+    
     UIBezierPath *outerPath = [UIBezierPath bezierPathWithOvalInRect:UIEdgeInsetsInsetRect(rect, UIEdgeInsetsMake(1.0, 1.0, 1.0, 1.0))];
-    outerPath.lineWidth = _selected ? 2.f : 1.f;
+    outerPath.lineWidth = self.state == SLGestureCOdeItemStateNormal ? 1.f : 2.f;
+    
+    self.selectedColor = self.state == SLGestureCOdeItemStateError ? SLErrorColor : SLSelectedColor;
+    
     [self.selectedColor setStroke];
     [outerPath stroke];
-    
+
     [[UIColor clearColor] setFill];
     [outerPath fill];
     
-    CAShapeLayer *layer = [CAShapeLayer new];
-    layer.path = outerPath.CGPath;
+    CAShapeLayer *outerLayer = [CAShapeLayer new];
+    outerLayer.path = outerPath.CGPath;
     
-    if (_selected) {
+    if (self.state != SLGestureCOdeItemStateNormal) {
         CGFloat center = CGRectGetMidX(self.bounds);
 
         UIBezierPath *innerPath = [UIBezierPath bezierPathWithArcCenter:CGPointMake(center, center) radius:kInnerItemWidth/2.f startAngle:0.f endAngle:2 * M_PI clockwise:true];
         [self.selectedColor setFill];
         [innerPath fill];
         
-        CAShapeLayer *innerLayer = [CAShapeLayer new];
-        innerLayer.path = innerPath.CGPath;
-        
-        [layer addSublayer:innerLayer];
-        
         if (!CGPointEqualToPoint(self.destination, CGPointZero)) {
-            NSLog(@"%@",@([self _angleToRotation]));
+            self.destination.x < self.center.x ? [self leftTriangle] : [self rightTriangle];
+            
+            [CATransaction begin];
+            [CATransaction setDisableActions:true];
+            self.layer.transform = CATransform3DMakeRotation([self _angleToRotation], 0, 0, 1);
+            [CATransaction commit];
         }
     }
     
-    self.layer.mask = layer;
+    self.layer.mask = outerLayer;
 }
 
-- (void)setSelected:(BOOL)selected {
-    if (selected == _selected) return;
+- (void)setState:(SLGestureCOdeItemState)state {
+    if (state == _state) return;
     
-    _selected = selected;
+    _state = state;
     
     [self setNeedsDisplay];
 }
@@ -83,8 +86,34 @@ static CGFloat kInnerItemWidth = 20.f;
     CGFloat height = self.destination.y - self.center.y;
     CGFloat width = self.destination.x - self.center.x;
     CGFloat rads = atan(height/width);
-    CGFloat value = (180.f * rads / M_PI);
+
+    return rads;
+}
+
+- (void)leftTriangle {
+    CGFloat center = CGRectGetMidX(self.bounds);
     
-    return value;
+    UIBezierPath *aPath = [UIBezierPath new];
+    [aPath moveToPoint:CGPointMake(kTrianglePadding, center)];
+    [aPath addLineToPoint:CGPointMake(kTrianglePadding + kTriangleWidth/2.f, center - kTriangleWidth/2.f)];
+    [aPath addLineToPoint:CGPointMake(kTrianglePadding + kTriangleWidth/2.f, center + kTriangleWidth/2.f)];
+    [aPath addLineToPoint:CGPointMake(kTrianglePadding, center)];
+    
+    [self.selectedColor setFill];
+    [aPath fill];
+}
+
+- (void)rightTriangle {
+    CGFloat center = CGRectGetMidX(self.bounds);
+    CGFloat maxX = CGRectGetWidth(self.bounds) - kTrianglePadding;
+    
+    UIBezierPath *aPath = [UIBezierPath new];
+    [aPath moveToPoint:CGPointMake(maxX, center)];
+    [aPath addLineToPoint:CGPointMake(maxX - kTriangleWidth/2.f, center - kTriangleWidth/2.f)];
+    [aPath addLineToPoint:CGPointMake(maxX - kTriangleWidth/2.f, center + kTriangleWidth/2.f)];
+    [aPath addLineToPoint:CGPointMake(maxX, center)];
+    
+    [self.selectedColor setFill];
+    [aPath fill];
 }
 @end

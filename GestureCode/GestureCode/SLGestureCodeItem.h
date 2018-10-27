@@ -8,10 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSInteger, SLGestureCOdeItemState) {
+    SLGestureCOdeItemStateNormal,
+    SLGestureCOdeItemStateSelected,
+    SLGestureCOdeItemStateError
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SLGestureCodeItem : UIView
-@property (assign, nonatomic) BOOL selected;
+@property (assign, nonatomic) SLGestureCOdeItemState state;
 @property (assign, nonatomic) CGPoint destination;
 @end
 
